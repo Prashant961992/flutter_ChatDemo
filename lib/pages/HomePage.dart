@@ -1,5 +1,7 @@
+import 'package:chatdemo/AppData.dart';
 import 'package:chatdemo/models/UserChannels.dart';
 import 'package:chatdemo/models/Users.dart';
+import 'package:chatdemo/pages/ChatPage.dart';
 import 'package:chatdemo/pages/ContactsPage.dart';
 import 'package:chatdemo/services/FirebseConstants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,8 +26,7 @@ class _HomePageState extends State<HomePage> {
   List<UserChannels> _userChannelList;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  Users _userData;
-
+ 
   Future<FirebaseUser> getCurrentUser() async {
     FirebaseUser user = await _firebaseAuth.currentUser();
     return user;
@@ -35,21 +36,28 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
+    Firestore.instance
+        .collection("channels")
+        .where("users", arrayContains: "LYde7F1GIlf02LzQVUZvQvpTQ7p1")
+        .snapshots()
+        .listen((event) {
+      print(event);
+    });
+
     _userChannelList = new List();
-    this.getCurrentUser().then((user) {
-      Firestore.instance
+
+    Firestore.instance
           .collection(pCollectionUsers)
-          .document(user.uid)
+          .document(AppData.sharedInstance.currentUserId)
           .snapshots(includeMetadataChanges: true)
           .listen(currentUserData);
 
-      Firestore.instance
+    Firestore.instance
           .collection(pCollectionUsers)
-          .document(user.uid)
+          .document(AppData.sharedInstance.currentUserId)
           .collection(pCollectionChannels)
           .snapshots(includeMetadataChanges: true)
           .listen(onEntryAdded);
-    });
   }
 
   @override
@@ -58,8 +66,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   currentUserData(DocumentSnapshot event) {
-    _userData = Users.fromJson(event.data, event.documentID);
-    print(_userData.toJson());
+    AppData.sharedInstance.currentUserdata = Users.fromJson(event.data, event.documentID);
   }
 
   onEntryAdded(QuerySnapshot event) {
@@ -90,10 +97,16 @@ class _HomePageState extends State<HomePage> {
           itemCount: _userChannelList.length,
           itemBuilder: (BuildContext context, int index) {
             String subject = _userChannelList[index].channelId;
-            return Dismissible(
+            return InkWell(
               key: Key(subject),
-              background: Container(color: Colors.red),
-              onDismissed: (direction) async {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChatPage()),
+                );
+              },
+              // background: Container(color: Colors.red),
+              // onDismissed: (direction) async {},
               child: ListTile(
                 title: Text(
                   subject,

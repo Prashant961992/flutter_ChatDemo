@@ -110,8 +110,8 @@ class _ContactsPageState extends State<ContactsPage> {
               // key: Key(subject),
               onTap: () {
                 // FirebaseMessages().sendMessage("Hello","QVY47vgHBkYiW4nL8FEm");
-                // _selectedUserList.add(_userList[index]);
-                // FirebaseChannels().cretatePrivateChannels("",_selectedUserList);
+                _selectedUserList.add(_userList[index]);
+                FirebaseChannels().cretatePrivateChannels("",_selectedUserList);
               },
               child: ListTile(
                 title: Text(

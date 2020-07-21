@@ -1,3 +1,4 @@
+import 'package:chatdemo/AppData.dart';
 import 'package:flutter/material.dart';
 import 'package:chatdemo/pages/LoginSignupPage.dart';
 import 'package:chatdemo/services/FirebaseAuthorization.dart';
@@ -28,6 +29,7 @@ class _RootPageState extends State<RootPage> {
     widget.auth.getCurrentUser().then((user) {
       setState(() {
         if (user != null) {
+          AppData.sharedInstance.currentUserId = user?.uid;
           _userId = user?.uid;
         }
         authStatus =

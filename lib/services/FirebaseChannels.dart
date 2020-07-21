@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class ChannelAuth {
   Future<void> cretatePrivateChannels(String name, List<Users> users);
-  
+
   Future<void> cretatePublicChannels(String name);
 
   Future<FirebaseUser> getCurrentUser();
@@ -17,24 +17,42 @@ class FirebaseChannels implements ChannelAuth {
   Future<void> cretatePrivateChannels(String name, List<Users> users) async {
     getCurrentUser().then((user) {
       if (users.length == 2) {
-        createChannel(user, 1, users,"");
+        createChannel(user, 1, users, "");
       } else {
-        createChannel(user, 2, users,name);
+        createChannel(user, 2, users, name);
       }
     });
   }
-  
+
   Future<void> cretatePublicChannels(String name) async {
     getCurrentUser().then((user) {
-      createChannel(user,0, List(),name);
+      createChannel(user, 0, List(), name);
     });
   }
 
-  Future<void> createChannel(FirebaseUser logInUser, int channelType, List<Users> users, String channelName) async {
+  Future<void> createChannel(FirebaseUser logInUser, int channelType,
+      List<Users> users, String channelName) async {
     if (channelType == 0) {
-      Firestore.instance.collection(pPublicChannels).add({
-        "creation-date": DateTime.now().millisecondsSinceEpoch.toString()
-      });
+      Firestore.instance.collection(pPublicChannels).add(
+          {"creation-date": DateTime.now().millisecondsSinceEpoch.toString()});
+    }
+
+    List<String> user = [];
+    for (var i = 0; i < users.length; i++) {
+      user.add(users[i].uid);
+    }
+
+    List<Map> userInfo = [];
+    for (var i = 0; i < users.length; i++) {
+      var mapData = Map();
+      mapData["uid"] = users[i].uid;
+      // mapData["uname"] = users[i].meta.name;
+      if (users[i].uid == logInUser.uid) {
+        mapData["status"] = "owner";
+      } else {
+        mapData["status"] = "member";
+      }
+      userInfo.add(mapData);
     }
 
     firestoreInstance.collection(pCollectionChannels).add({
@@ -52,23 +70,25 @@ class FirebaseChannels implements ChannelAuth {
         "name": channelName,
         "type": channelType,
       },
+      "users": FieldValue.arrayUnion(user),
+      "usersInfo": FieldValue.arrayUnion(userInfo)
     }).then((value) {
       for (var user in users) {
-        if (user.uid == logInUser.uid) {
-          firestoreInstance
-              .collection(pCollectionChannels)
-              .document(value.documentID)
-              .collection(pchannelUsers)
-              .document(user.uid)
-              .setData({"status": "owner"});
-        } else {
-          firestoreInstance
-              .collection(pCollectionChannels)
-              .document(value.documentID)
-              .collection(pchannelUsers)
-              .document(user.uid)
-              .setData({"status": "member"});
-        }
+        // if (user.uid == logInUser.uid) {
+        //   firestoreInstance
+        //       .collection(pCollectionChannels)
+        //       .document(value.documentID)
+        //       .collection(pchannelUsers)
+        //       .document(user.uid)
+        //       .setData({"status": "owner"});
+        // } else {
+        //   firestoreInstance
+        //       .collection(pCollectionChannels)
+        //       .document(value.documentID)
+        //       .collection(pchannelUsers)
+        //       .document(user.uid)
+        //       .setData({"status": "member"});
+        // }
 
         firestoreInstance
             .collection(pCollectionUsers)
@@ -79,7 +99,7 @@ class FirebaseChannels implements ChannelAuth {
       }
     });
   }
- 
+
   Future<FirebaseUser> getCurrentUser() async {
     FirebaseUser user = await _firebaseAuth.currentUser();
     return user;

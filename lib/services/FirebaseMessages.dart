@@ -8,7 +8,13 @@ class FirebaseMessages {
 
   // ignore: missing_return
   //, List<Users> users
-  Future<void> sendMessage(String message, String channelId, List<Users> users) {
+  Future<void> sendMessage(
+      String message, String channelId, List<Users> users) {
+    List<String> userl = [];
+    for (var i = 0; i < users.length; i++) {
+      userl.add(users[i].uid);
+    }
+
     getCurrentUser().then((user) {
       firestoreInstance
           .collection(pCollectionChannels)
@@ -18,22 +24,37 @@ class FirebaseMessages {
         "date": FieldValue.serverTimestamp(),
         "from": user.email,
         "meta": {"text": message},
-        "to": FieldValue.arrayUnion(["generous", "loving", "loyal"]),
+        "to": FieldValue.arrayUnion(userl),
+        // "to" : FieldValue.arrayUnion([{"uid":"","name":"p"},{"uid":"","name":"p"}]),
         "type": "text", //message type e.g. text , image , video
         "user-firebase-id": user.uid,
-        "userName": "",
       }).then((value) {
-        // Mofidify user
+        // lastMessage
         firestoreInstance
-          .collection(pCollectionChannels)
-          .document(channelId)
-          .collection(pchannelmessages)
-          .document(value.documentID)
-          .collection(pchannelRead)
-          .add({
-             "date": DateTime.now().millisecondsSinceEpoch.toString(),
-             "status": 2
-          });
+            .collection(pCollectionChannels)
+            .document(channelId)
+            .updateData({
+              "lastMessage" : {
+          "date": FieldValue.serverTimestamp(),
+          "from": user.email,
+          "meta": {"text": message},
+          // "to": FieldValue.arrayUnion(userl),
+          // "to" : FieldValue.arrayUnion([{"uid":"","name":"p"},{"uid":"","name":"p"}]),
+          "type": "text", //message type e.g. text , image , video
+          "user-firebase-id": user.uid,
+        }
+            });
+        // Mofidify user
+        // firestoreInstance
+        //   .collection(pCollectionChannels)
+        //   .document(channelId)
+        //   .collection(pchannelmessages)
+        //   .document(value.documentID)
+        //   .collection(pchannelRead)
+        //   .add({
+        //      "date": DateTime.now().millisecondsSinceEpoch.toString(),
+        //      "status": 2
+        //   });
       });
     });
   }
