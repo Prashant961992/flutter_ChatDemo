@@ -73,19 +73,19 @@ class Auth implements BaseAuth {
         .collection(pCollectionUsers)
         .document(logInUser.uid)
         .setData({
-      'displayName': logInUser.email,
       "meta" : {
       "availability" : "chat",
       "email" : logInUser.email,
       "locality": "",
-      "name": "",
+      "name": logInUser.email,
       "name-lowercase": "",
       "phone": "",
       "photoUrl": "",
       "status": "",
-      'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
+      'createdAt': FieldValue.serverTimestamp(),
      },
-     'online': false
+     'online': false,
+     'last-online': FieldValue.serverTimestamp()
     });
   }
 

@@ -19,7 +19,7 @@ class FirebaseChannels implements ChannelAuth {
       if (users.length == 2) {
         createChannel(user, 1, users, "");
       } else {
-        createChannel(user, 2, users, name);
+        createChannel(user, 2, users, name == "" ? "Group" : name);
       }
     });
   }
@@ -46,7 +46,6 @@ class FirebaseChannels implements ChannelAuth {
     for (var i = 0; i < users.length; i++) {
       var mapData = Map();
       mapData["uid"] = users[i].uid;
-      // mapData["uname"] = users[i].meta.name;
       if (users[i].uid == logInUser.uid) {
         mapData["status"] = "owner";
       } else {

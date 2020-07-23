@@ -6,14 +6,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatefulWidget {
+  final String channelId;
+  final String title;
+
+  ChatPage({this.channelId,this.title});
   @override
   _ChatPageState createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
   final textFieldMessage = TextEditingController();
-  final String threadId = "lUFZurasmsZLxHUbEYrC";
-
+ 
   _buildMessage(Map message, bool isMe) {
     final Container msg = Container(
       margin: isMe
@@ -115,7 +118,7 @@ class _ChatPageState extends State<ChatPage> {
             onPressed: () {
               if (textFieldMessage.text.length > 0) {
                 FirebaseMessages()
-                    .sendMessage(textFieldMessage.text, threadId, []);
+                    .sendMessage(textFieldMessage.text, widget.channelId, []);
               }
             },
           ),
@@ -130,7 +133,7 @@ class _ChatPageState extends State<ChatPage> {
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
         title: Text(
-          "Prashant",
+          widget.title,
           style: TextStyle(
             fontSize: 28.0,
             fontWeight: FontWeight.bold,
@@ -167,7 +170,7 @@ class _ChatPageState extends State<ChatPage> {
                     child: StreamBuilder(
                       stream: Firestore.instance
                           .collection(pCollectionChannels)
-                          .document(threadId)
+                          .document(widget.channelId)
                           .collection(pchannelmessages).orderBy("date",descending: true)
                           .snapshots(),
                       builder: (context, snapshot) {
@@ -188,7 +191,9 @@ class _ChatPageState extends State<ChatPage> {
                             },
                           );
                         } else {
-                          return Text("Loading..");
+                          return Center(
+                            child: CircularProgressIndicator()
+                          );
                         }
                       },
                     )),

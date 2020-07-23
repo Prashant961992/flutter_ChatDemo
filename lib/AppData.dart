@@ -11,4 +11,5 @@ class AppData {
   static final AppData sharedInstance = AppData._();
   var currentUserdata = Users();
   String currentUserId = "";
+  List<Users> users = [];
 }

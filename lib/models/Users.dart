@@ -1,6 +1,6 @@
 
 class Users {
-  Meta meta;
+  UsersMeta meta;
   bool online;
   String displayName;
   String uid;
@@ -8,7 +8,7 @@ class Users {
   Users({this.meta, this.online, this.displayName});
 
   Users.fromJson(Map<String, dynamic> json,String id) {
-    meta = json['meta'] != null ? new Meta.fromJson(json['meta']) : null;
+    meta = json['meta'] != null ? new UsersMeta.fromJson(json['meta']) : null;
     online = json['online'];
     displayName = json['displayName'];
     uid = id;
@@ -26,7 +26,7 @@ class Users {
   }
 }
 
-class Meta {
+class UsersMeta {
   String phone;
   String locality;
   String availability;
@@ -37,7 +37,7 @@ class Meta {
   String photoUrl;
   String name;
 
-  Meta(
+  UsersMeta(
       {this.phone,
       this.locality,
       this.availability,
@@ -48,7 +48,7 @@ class Meta {
       this.photoUrl,
       this.name});
 
-  Meta.fromJson(Map<String, dynamic> json) {
+  UsersMeta.fromJson(Map<String, dynamic> json) {
     phone = json['phone'];
     locality = json['locality'];
     availability = json['availability'];

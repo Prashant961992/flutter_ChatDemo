@@ -1,3 +1,4 @@
+import 'package:chatdemo/AppData.dart';
 import 'package:chatdemo/models/Users.dart';
 import 'package:chatdemo/services/FirebaseChannels.dart';
 import 'package:chatdemo/services/FirebaseMessages.dart';
@@ -15,54 +16,27 @@ class ContactsPage extends StatefulWidget {
 }
 
 class _ContactsPageState extends State<ContactsPage> {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  List<Users> _userList;
   List<Users> _selectedUserList;
-  Users _userData;
-
-  Future<FirebaseUser> getCurrentUser() async {
-    FirebaseUser user = await _firebaseAuth.currentUser();
-    return user;
-  }
 
   @override
   void initState() {
     super.initState();
 
-    _userList = new List();
     _selectedUserList = new List();
+    _selectedUserList.add(AppData.sharedInstance.currentUserdata);
 
-    Firestore.instance
-        .collection(pCollectionChannels)
-        .document("QVY47vgHBkYiW4nL8FEm")
-        .snapshots(includeMetadataChanges: true)
-        .listen((event) {
-      print(event);
-    });
+    // this.getCurrentUser().then((user) {
+    //   Firestore.instance
+    //       .collection(pCollectionUsers)
+    //       .document(user.uid)
+    //       .snapshots(includeMetadataChanges: true)
+    //       .listen(currentUserData);
 
-    Firestore.instance
-          .collection(pCollectionChannels)
-          .document("QVY47vgHBkYiW4nL8FEm")
-          .collection(pchannelmessages)
-          .snapshots(includeMetadataChanges: true)
-          .listen((event) {
-        print(event);
-      });
-  
-    this.getCurrentUser().then((user) {
-      Firestore.instance
-          .collection(pCollectionUsers)
-          .document(user.uid)
-          .snapshots(includeMetadataChanges: true)
-          .listen(currentUserData);
-
-      Firestore.instance
-          .collection(pCollectionUsers)
-          .snapshots(includeMetadataChanges: true)
-          .listen(onEntryAdded);
-    });
-
-    // Firestore.instance.collection(pCollectionUsers).snapshots(includeMetadataChanges: true).listen(onEntryAdded);
+    //   Firestore.instance
+    //       .collection(pCollectionUsers)
+    //       .snapshots(includeMetadataChanges: true)
+    //       .listen(onEntryAdded);
+    // });
   }
 
   @override
@@ -70,21 +44,21 @@ class _ContactsPageState extends State<ContactsPage> {
     super.dispose();
   }
 
-  currentUserData(DocumentSnapshot event) {
-    _userData = Users.fromJson(event.data, event.documentID);
-    _selectedUserList.add(_userData);
-    print(_userData.toJson());
-  }
+  // currentUserData(DocumentSnapshot event) {
+  //   _userData = Users.fromJson(event.data, event.documentID);
 
-  onEntryAdded(QuerySnapshot event) {
-    _userList = new List();
-    setState(() {
-      for (var i = 0; i < event.documents.length; i++) {
-        _userList.add(Users.fromJson(
-            event.documents[i].data, event.documents[i].documentID));
-      }
-    });
-  }
+  //   print(_userData.toJson());
+  // }
+
+  // onEntryAdded(QuerySnapshot event) {
+  //   _userList = new List();
+  //   setState(() {
+  //     for (var i = 0; i < event.documents.length; i++) {
+  //       _userList.add(Users.fromJson(
+  //           event.documents[i].data, event.documents[i].documentID));
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -99,46 +73,47 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   Widget showTodoList() {
-    if (_userList.length > 0) {
-      return ListView.builder(
-          shrinkWrap: true,
-          itemCount: _userList.length,
-          itemBuilder: (BuildContext context, int index) {
-            String subject = _userList[index].displayName;
-            bool completed = _userList[index].online;
-            return InkWell(
-              // key: Key(subject),
-              onTap: () {
-                // FirebaseMessages().sendMessage("Hello","QVY47vgHBkYiW4nL8FEm");
-                _selectedUserList.add(_userList[index]);
-                FirebaseChannels().cretatePrivateChannels("",_selectedUserList);
-              },
-              child: ListTile(
-                title: Text(
-                  subject,
-                  style: TextStyle(fontSize: 20.0),
-                ),
-                trailing: IconButton(
-                    icon: (completed)
-                        ? Icon(
-                            Icons.done_outline,
-                            color: Colors.green,
-                            size: 20.0,
-                          )
-                        : Icon(Icons.done, color: Colors.grey, size: 20.0),
-                    onPressed: () {
-                      // updateTodo(_todoList[index]);
-                    }),
+    return ListView.builder(
+        shrinkWrap: true,
+        itemCount: AppData.sharedInstance.users.length,
+        itemBuilder: (BuildContext context, int index) {
+          Users userData = AppData.sharedInstance.users[index];
+          String subject = AppData.sharedInstance.users[index].meta.name;
+          bool completed = AppData.sharedInstance.users[index].online;
+          return InkWell(
+            onTap: () {
+              _selectedUserList.add(userData);
+              FirebaseChannels().cretatePrivateChannels("", _selectedUserList);
+            },
+            child: ListTile(
+              title: Text(
+                subject,
+                style: TextStyle(fontSize: 20.0),
               ),
-            );
-          });
-    } else {
-      return Center(
-          child: Text(
-        "Welcome. Your list is empty",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 30.0),
-      ));
-    }
+              trailing: IconButton(
+                  icon: (completed)
+                      ? Icon(
+                          Icons.done_outline,
+                          color: Colors.green,
+                          size: 20.0,
+                        )
+                      : Icon(Icons.done, color: Colors.grey, size: 20.0),
+                  onPressed: () {
+                    // updateTodo(_todoList[index]);
+                  }),
+            ),
+          );
+        });
+
+    // if (_userList.length > 0) {
+
+    // } else {
+    //   return Center(
+    //       child: Text(
+    //     "Welcome. Your list is empty",
+    //     textAlign: TextAlign.center,
+    //     style: TextStyle(fontSize: 30.0),
+    //   ));
+    // }
   }
 }

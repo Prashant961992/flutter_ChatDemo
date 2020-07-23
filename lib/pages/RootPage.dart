@@ -1,4 +1,7 @@
 import 'package:chatdemo/AppData.dart';
+import 'package:chatdemo/models/Users.dart';
+import 'package:chatdemo/services/FirebseConstants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chatdemo/pages/LoginSignupPage.dart';
 import 'package:chatdemo/services/FirebaseAuthorization.dart';
@@ -27,23 +30,50 @@ class _RootPageState extends State<RootPage> {
   void initState() {
     super.initState();
     widget.auth.getCurrentUser().then((user) {
-      setState(() {
-        if (user != null) {
-          AppData.sharedInstance.currentUserId = user?.uid;
-          _userId = user?.uid;
-        }
-        authStatus =
-            user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
-      });
+      if (user != null) {
+        AppData.sharedInstance.currentUserId = user?.uid;
+        _userId = user?.uid;
+      }
+      authStatus =
+          user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+
+      Firestore.instance
+          .collection(pCollectionUsers)
+          .snapshots(includeMetadataChanges: true)
+          .listen(currentUserData);
     });
+  }
+
+  void currentUserData(QuerySnapshot event) {
+    var documentsdata = event.documents;
+    List<Users> usersList = [];
+    for (var items in documentsdata) {
+      usersList.add(Users.fromJson(items.data, items.documentID));
+    }
+
+    var udata = usersList.where((element) => element.uid == _userId);
+    AppData.sharedInstance.currentUserdata = udata.first;
+    usersList.removeWhere((element) => element.uid == _userId);
+    AppData.sharedInstance.users = usersList;
+
+    setState(() {});
   }
 
   void loginCallback() {
     widget.auth.getCurrentUser().then((user) {
-      setState(() {
-        _userId = user.uid.toString();
-      });
+      if (user != null) {
+        AppData.sharedInstance.currentUserId = user?.uid;
+        _userId = user?.uid;
+      }
+      authStatus =
+          user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+      
+      Firestore.instance
+          .collection(pCollectionUsers)
+          .snapshots(includeMetadataChanges: true)
+          .listen(currentUserData);
     });
+
     setState(() {
       authStatus = AuthStatus.LOGGED_IN;
     });

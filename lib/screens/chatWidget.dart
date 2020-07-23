@@ -8,8 +8,6 @@ import 'chat.dart';
 import '../pages/ChatDBFireStore.dart';
 import 'chatData.dart';
 import 'constants.dart';
-import 'screens/chat.dart';
-import 'screens/zoomImage.dart';
 
 class ChatWidget {
   static Widget userListStack(String currentUserId, BuildContext context) {

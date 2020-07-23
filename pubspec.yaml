@@ -41,7 +41,9 @@ dependencies:
   uuid: 2.2.0
   flutter_local_notifications: 1.4.3
   dash_chat: ^1.1.13
-  
+  mongo_dart: ^0.4.0
+  http_server: ^0.9.8+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
