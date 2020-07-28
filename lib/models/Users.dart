@@ -33,7 +33,7 @@ class UsersMeta {
   String status;
   String email;
   String nameLowercase;
-  String createdAt;
+  // String createdAt;
   String photoUrl;
   String name;
 
@@ -44,7 +44,7 @@ class UsersMeta {
       this.status,
       this.email,
       this.nameLowercase,
-      this.createdAt,
+      // this.createdAt,
       this.photoUrl,
       this.name});
 
@@ -55,7 +55,7 @@ class UsersMeta {
     status = json['status'];
     email = json['email'];
     nameLowercase = json['name-lowercase'];
-    createdAt = json['createdAt'];
+    // createdAt = json['createdAt'];
     photoUrl = json['photoUrl'];
     name = json['name'];
   }
@@ -68,7 +68,7 @@ class UsersMeta {
     data['status'] = this.status;
     data['email'] = this.email;
     data['name-lowercase'] = this.nameLowercase;
-    data['createdAt'] = this.createdAt;
+    // data['createdAt'] = this.createdAt;
     data['photoUrl'] = this.photoUrl;
     data['name'] = this.name;
     return data;

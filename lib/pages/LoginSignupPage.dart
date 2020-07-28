@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:chatdemo/services/FirebaseAuthorization.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../main.dart';
+import 'authentication/index.dart';
 
 class LoginSignupPage extends StatefulWidget {
   LoginSignupPage({this.auth, this.loginCallback});
@@ -55,7 +59,9 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         });
 
         if (userId.length > 0 && userId != null && _isLoginForm) {
-          widget.loginCallback();
+          BlocProvider.of<AuthenticationBloc>(context).add(
+            AuthenticationStarted(),
+          );
         }
       } catch (e) {
         print('Error: $e');
@@ -140,7 +146,17 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         padding: EdgeInsets.all(16.0),
         child: new Form(
           key: _formKey,
-          child: new ListView(
+          child: _isLoginForm ? new ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              showLogo(),
+              showEmailInput(),
+              showPasswordInput(),
+              showPrimaryButton(),
+              showSecondaryButton(),
+              showErrorMessage(),
+            ],
+          ) : new ListView(
             shrinkWrap: true,
             children: <Widget>[
               showLogo(),
@@ -203,7 +219,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
       ),
     );
   }
-
+  
   Widget showPasswordInput() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),

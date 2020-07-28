@@ -1,15 +1,21 @@
 import 'package:chatdemo/AppData.dart';
 import 'package:chatdemo/models/Users.dart';
 import 'package:chatdemo/services/FirebaseChannels.dart';
-import 'package:chatdemo/services/FirebaseMessages.dart';
-import 'package:chatdemo/services/FirebseConstants.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+typedef StringValue = String Function(String);
+
 class ContactsPage extends StatefulWidget {
-  ContactsPage({Key key}) : super(key: key);
+  final VoidCallback onCountSelected;
+  
+  final Function(String) onCountChange;
+
+  ContactsPage({
+    Key key,
+    this.onCountChange,
+    this.onCountSelected
+    }) : super(key: key);
 
   @override
   _ContactsPageState createState() => _ContactsPageState();
@@ -21,44 +27,14 @@ class _ContactsPageState extends State<ContactsPage> {
   @override
   void initState() {
     super.initState();
-
     _selectedUserList = new List();
     _selectedUserList.add(AppData.sharedInstance.currentUserdata);
-
-    // this.getCurrentUser().then((user) {
-    //   Firestore.instance
-    //       .collection(pCollectionUsers)
-    //       .document(user.uid)
-    //       .snapshots(includeMetadataChanges: true)
-    //       .listen(currentUserData);
-
-    //   Firestore.instance
-    //       .collection(pCollectionUsers)
-    //       .snapshots(includeMetadataChanges: true)
-    //       .listen(onEntryAdded);
-    // });
   }
 
   @override
   void dispose() {
     super.dispose();
   }
-
-  // currentUserData(DocumentSnapshot event) {
-  //   _userData = Users.fromJson(event.data, event.documentID);
-
-  //   print(_userData.toJson());
-  // }
-
-  // onEntryAdded(QuerySnapshot event) {
-  //   _userList = new List();
-  //   setState(() {
-  //     for (var i = 0; i < event.documents.length; i++) {
-  //       _userList.add(Users.fromJson(
-  //           event.documents[i].data, event.documents[i].documentID));
-  //     }
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -67,40 +43,43 @@ class _ContactsPageState extends State<ContactsPage> {
         appBar: new AppBar(
           title: new Text('Contacts'),
         ),
-        body: showTodoList(),
+        body: showContactList(),
       ),
     );
   }
 
-  Widget showTodoList() {
+  Widget showContactList() {
     return ListView.builder(
-        shrinkWrap: true,
+        physics: AlwaysScrollableScrollPhysics(),
+        // shrinkWrap: true,
         itemCount: AppData.sharedInstance.users.length,
         itemBuilder: (BuildContext context, int index) {
           Users userData = AppData.sharedInstance.users[index];
-          String subject = AppData.sharedInstance.users[index].meta.name;
-          bool completed = AppData.sharedInstance.users[index].online;
+          String name = AppData.sharedInstance.users[index].meta.name;
+          // bool completed = AppData.sharedInstance.users[index].online;
           return InkWell(
             onTap: () {
-              _selectedUserList.add(userData);
-              FirebaseChannels().cretatePrivateChannels("", _selectedUserList);
+              var arrData = AppData.sharedInstance.userOppsiteChannelList
+                  .where((element) => element.id == userData.uid)
+                  .toList();
+              if (arrData.length == 0) {
+                _selectedUserList.add(userData);
+                FirebaseChannels()
+                    .cretatePrivateChannels("", _selectedUserList);
+              } else {
+                Navigator.pop(context, arrData.first.channelId);
+                // widget.onCountChange(arrData.first.channelId);
+              }
             },
             child: ListTile(
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6iWic-5CDffrEPmSu8oi_cGzXd7EWVoaz6A&usqp=CAU"),
+              ),
               title: Text(
-                subject,
+                name,
                 style: TextStyle(fontSize: 20.0),
               ),
-              trailing: IconButton(
-                  icon: (completed)
-                      ? Icon(
-                          Icons.done_outline,
-                          color: Colors.green,
-                          size: 20.0,
-                        )
-                      : Icon(Icons.done, color: Colors.grey, size: 20.0),
-                  onPressed: () {
-                    // updateTodo(_todoList[index]);
-                  }),
             ),
           );
         });

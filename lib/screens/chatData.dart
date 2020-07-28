@@ -162,7 +162,7 @@ class ChatData {
       /**
        * Make user online
        */
-      await ChatDBFireStore.makeUserOnline(logInUser);
+      // await ChatDBFireStore.makeUserOnline(logInUser);
 
       Navigator.pushReplacement(
           context,

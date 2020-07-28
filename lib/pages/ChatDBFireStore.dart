@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+// import 'package:firebase_database/firebase_database.dart';
 
 class ChatDBFireStore {
   static String getDocName() {
@@ -40,16 +40,16 @@ class ChatDBFireStore {
     Firestore.instance.collection(ChatDBFireStore.getDocName()).snapshots();
   }
 
-  static Future<void> makeUserOnline(FirebaseUser logInUser) async {
-    FirebaseDatabase.instance
-        .reference()
-        .child("/status/" + logInUser.uid)
-        .onDisconnect()
-        .set("offline");
+  // static Future<void> makeUserOnline(FirebaseUser logInUser) async {
+  //   FirebaseDatabase.instance
+  //       .reference()
+  //       .child("/status/" + logInUser.uid)
+  //       .onDisconnect()
+  //       .set("offline");
 
-    FirebaseDatabase.instance
-        .reference()
-        .child("/status/" + logInUser.uid)
-        .set("online");
-  }
+  //   FirebaseDatabase.instance
+  //       .reference()
+  //       .child("/status/" + logInUser.uid)
+  //       .set("online");
+  // }
 }

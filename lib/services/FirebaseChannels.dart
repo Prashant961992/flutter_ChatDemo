@@ -1,3 +1,4 @@
+import 'package:chatdemo/models/Channels.dart';
 import 'package:chatdemo/models/Users.dart';
 import 'package:chatdemo/services/FirebseConstants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
