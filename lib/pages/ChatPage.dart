@@ -139,14 +139,6 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ),
         elevation: 0.0,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.more_horiz),
-            iconSize: 30.0,
-            color: Colors.white,
-            onPressed: () {},
-          ),
-        ],
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -182,7 +174,7 @@ class _ChatPageState extends State<ChatPage> {
                               var message = snapshot.data.documents[index].data;
     
                               if (message["user-firebase-id"] ==
-                                  AppData.sharedInstance.currentUserId) {
+                                  AppData.instance.currentUserId) {
                                 return _buildMessage(message, true);
                               } else {
                                 return _buildMessage(message, false);

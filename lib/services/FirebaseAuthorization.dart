@@ -25,7 +25,7 @@ class Auth implements BaseAuth {
     AuthResult result = await _firebaseAuth.signInWithEmailAndPassword(
         email: email, password: password);
     FirebaseUser user = result.user;
-    await checkUserExists(user);
+    //await checkUserExists(user);
     return user.uid;
   }
 
@@ -74,7 +74,7 @@ class Auth implements BaseAuth {
         .document(logInUser.uid)
         .setData({
       "meta" : {
-      "availability" : "chat",
+      "availability" : "",
       "email" : logInUser.email,
       "locality": "",
       "name": logInUser.email,

@@ -1,4 +1,3 @@
-import 'package:chatdemo/pages/authentication/index.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthenticationRepository {

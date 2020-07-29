@@ -28,6 +28,7 @@ class AuthenticationFailure extends AuthenticationState {
 
 }
 
+
 class AuthenticationInProgress extends AuthenticationState {
   
 }

@@ -1,37 +1,38 @@
-import 'package:chatdemo/models/Channels.dart';
-import 'package:chatdemo/models/Users.dart';
-import 'package:chatdemo/services/FirebseConstants.dart';
+import '../models/Users.dart';
+import '../services/FirebseConstants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class ChannelAuth {
-  Future<void> cretatePrivateChannels(String name, List<Users> users);
+  Future<String> cretatePrivateChannels(String name, List<Users> users);
 
-  Future<void> cretatePublicChannels(String name);
+  Future<String> cretatePublicChannels(String name);
 
   Future<FirebaseUser> getCurrentUser();
 }
 
 class FirebaseChannels implements ChannelAuth {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
-  Future<void> cretatePrivateChannels(String name, List<Users> users) async {
-    getCurrentUser().then((user) {
-      if (users.length == 2) {
-        createChannel(user, 1, users, "");
-      } else {
-        createChannel(user, 2, users, name == "" ? "Group" : name);
-      }
-    });
+ 
+  Future<String> cretatePrivateChannels(String name, List<Users> users) async {
+    final user = await getCurrentUser();
+    if (users.length == 2) {
+      return createChannel(user, 1, users, "").then((value) {
+         return value;
+      });
+    } else {
+      return createChannel(user, 2, users, name == "" ? "Group" : name).then((value) {
+        return value;
+      });
+    }
   }
 
-  Future<void> cretatePublicChannels(String name) async {
-    getCurrentUser().then((user) {
-      createChannel(user, 0, List(), name);
-    });
+  Future<String> cretatePublicChannels(String name) async {
+    final user = await getCurrentUser();
+    return createChannel(user, 0, List(), name);
   }
 
-  Future<void> createChannel(FirebaseUser logInUser, int channelType,
+  Future<String> createChannel(FirebaseUser logInUser, int channelType,
       List<Users> users, String channelName) async {
     if (channelType == 0) {
       Firestore.instance.collection(pPublicChannels).add(
@@ -55,7 +56,7 @@ class FirebaseChannels implements ChannelAuth {
       userInfo.add(mapData);
     }
 
-    firestoreInstance.collection(pCollectionChannels).add({
+    return firestoreInstance.collection(pCollectionChannels).add({
       "details": {
         "creation-date": DateTime.now().millisecondsSinceEpoch.toString(),
         "creator": logInUser.email,
@@ -73,30 +74,15 @@ class FirebaseChannels implements ChannelAuth {
       "users": FieldValue.arrayUnion(user),
       "usersInfo": FieldValue.arrayUnion(userInfo)
     }).then((value) {
-      for (var user in users) {
-        // if (user.uid == logInUser.uid) {
-        //   firestoreInstance
-        //       .collection(pCollectionChannels)
-        //       .document(value.documentID)
-        //       .collection(pchannelUsers)
-        //       .document(user.uid)
-        //       .setData({"status": "owner"});
-        // } else {
-        //   firestoreInstance
-        //       .collection(pCollectionChannels)
-        //       .document(value.documentID)
-        //       .collection(pchannelUsers)
-        //       .document(user.uid)
-        //       .setData({"status": "member"});
-        // }
-
-        firestoreInstance
-            .collection(pCollectionUsers)
-            .document(user.uid)
-            .collection(pCollectionChannels)
-            .document(value.documentID)
-            .setData({"invitedBy": logInUser.uid});
-      }
+      // for (var user in users) {
+      //   firestoreInstance
+      //       .collection(pCollectionUsers)
+      //       .document(user.uid)
+      //       .collection(pCollectionChannels)
+      //       .document(value.documentID)
+      //       .setData({"invitedBy": logInUser.uid});
+      // }
+      return value.documentID;
     });
   }
 
