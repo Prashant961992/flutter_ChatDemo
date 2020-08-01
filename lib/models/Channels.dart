@@ -1,15 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Channels {
   String id;
   ChannelsMeta meta;
+  LastMessage lastmessage;
   List<Isread> isread;
   List<String> users;
   List<UsersInfo> usersInfo;
 
-  Channels({this.id, this.meta, this.isread, this.users, this.usersInfo});
+  Channels({this.id, this.meta, this.isread,this.lastmessage,this.users, this.usersInfo});
 
   Channels.fromJson(Map<String, dynamic> json,String uid) {
     id = uid;
     meta = json['meta'] != null ? new ChannelsMeta.fromJson(json['meta']) : null;
+    lastmessage = json['lastMessage'] != null ? new LastMessage.fromJson(json['lastMessage']) : null;
     if (json['isread'] != null) {
       isread = new List<Isread>();
       json['isread'].forEach((v) {
@@ -31,6 +35,9 @@ class Channels {
     if (this.meta != null) {
       data['meta'] = this.meta.toJson();
     }
+    // if (this.lastmessage != null) {
+    //   data['lastMessage'] = this.lastmessage.toJson();
+    // }
     if (this.isread != null) {
       data['isread'] = this.isread.map((v) => v.toJson()).toList();
     }
@@ -109,6 +116,66 @@ class UsersInfo {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['uid'] = this.uid;
     data['status'] = this.status;
+    return data;
+  }
+}
+
+class LastMessage {
+  DateTime date;
+  String from;
+  LastMessageMeta lastMessahemeta;
+  String type;
+  String userFirebaseId;
+
+  LastMessage(
+      {this.date, this.from, this.lastMessahemeta, this.type, this.userFirebaseId});
+
+  LastMessage.fromJson(Map<String, dynamic> json) {
+    date = (json['date'] as Timestamp).toDate();
+    from = json['from'];
+    lastMessahemeta = json['meta'] != null ? new LastMessageMeta.fromJson(json['meta']) : null;
+    type = json['type'];
+    userFirebaseId = json['user-firebase-id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['date'] = this.date;
+    data['from'] = this.from;
+    if (this.lastMessahemeta != null) {
+      data['meta'] = this.lastMessahemeta.toJson();
+    }
+    data['type'] = this.type;
+    data['user-firebase-id'] = this.userFirebaseId;
+    return data;
+  }
+}
+
+class LastMessageMeta {
+  String text;
+  // String imageUrl;
+  // String videoUrl;
+  // String fileurl;
+  // String audioUrl;
+  // 
+  LastMessageMeta({this.text});
+  // LastMessageMeta({this.text, this.imageUrl, this.videoUrl, this.fileurl, this.audioUrl});
+
+  LastMessageMeta.fromJson(Map<String, dynamic> json) {
+    text = json['text'];
+    // imageUrl = json['imageUrl'];
+    // videoUrl = json['videoUrl'];
+    // fileurl = json['fileurl'];
+    // audioUrl = json['audioUrl'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['text'] = this.text;
+    // data['imageUrl'] = this.imageUrl;
+    // data['videoUrl'] = this.videoUrl;
+    // data['fileurl'] = this.fileurl;
+    // data['audioUrl'] = this.audioUrl;
     return data;
   }
 }

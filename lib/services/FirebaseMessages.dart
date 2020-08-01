@@ -25,7 +25,6 @@ class FirebaseMessages {
         "from": user.email,
         "meta": {"text": message},
         "to": FieldValue.arrayUnion(userl),
-        // "to" : FieldValue.arrayUnion([{"uid":"","name":"p"},{"uid":"","name":"p"}]),
         "type": "text", //message type e.g. text , image , video
         "user-firebase-id": user.uid,
       }).then((value) {
@@ -34,16 +33,16 @@ class FirebaseMessages {
             .collection(pCollectionChannels)
             .document(channelId)
             .updateData({
-              "lastMessage" : {
-          "date": FieldValue.serverTimestamp(),
-          "from": user.email,
-          "meta": {"text": message},
-          // "to": FieldValue.arrayUnion(userl),
-          // "to" : FieldValue.arrayUnion([{"uid":"","name":"p"},{"uid":"","name":"p"}]),
-          "type": "text", //message type e.g. text , image , video
-          "user-firebase-id": user.uid,
-        }
-            });
+          "lastMessage": {
+            "date": FieldValue.serverTimestamp(),
+            "from": user.email,
+            "meta": {"text": message},
+            // "to": FieldValue.arrayUnion(userl),
+            // "to" : FieldValue.arrayUnion([{"uid":"","name":"p"},{"uid":"","name":"p"}]),
+            "type": "text", //message type e.g. text , image , video
+            "user-firebase-id": user.uid,
+          }
+        });
         // Mofidify user
         // firestoreInstance
         //   .collection(pCollectionChannels)

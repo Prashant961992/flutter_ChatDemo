@@ -1,15 +1,23 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatdemo/AppData.dart';
 import 'package:chatdemo/models/Users.dart';
 import 'package:chatdemo/services/FirebaseChannels.dart';
-import 'package:chatdemo/services/FirebaseMessages.dart';
 import 'package:chatdemo/services/FirebseConstants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../LoadingIndicator.dart';
+
+typedef StringValue = String Function(String);
+
 class ContactsPage extends StatefulWidget {
-  ContactsPage({Key key}) : super(key: key);
+  final VoidCallback onCountSelected;
+
+  final Function(String) onCountChange;
+
+  ContactsPage({Key key, this.onCountChange, this.onCountSelected})
+      : super(key: key);
 
   @override
   _ContactsPageState createState() => _ContactsPageState();
@@ -23,97 +31,97 @@ class _ContactsPageState extends State<ContactsPage> {
     super.initState();
 
     _selectedUserList = new List();
-    _selectedUserList.add(AppData.sharedInstance.currentUserdata);
-
-    // this.getCurrentUser().then((user) {
-    //   Firestore.instance
-    //       .collection(pCollectionUsers)
-    //       .document(user.uid)
-    //       .snapshots(includeMetadataChanges: true)
-    //       .listen(currentUserData);
-
-    //   Firestore.instance
-    //       .collection(pCollectionUsers)
-    //       .snapshots(includeMetadataChanges: true)
-    //       .listen(onEntryAdded);
-    // });
+    _selectedUserList.add(AppData.instance.currentUserdata);
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  // currentUserData(DocumentSnapshot event) {
-  //   _userData = Users.fromJson(event.data, event.documentID);
-
-  //   print(_userData.toJson());
-  // }
-
-  // onEntryAdded(QuerySnapshot event) {
-  //   _userList = new List();
-  //   setState(() {
-  //     for (var i = 0; i < event.documents.length; i++) {
-  //       _userList.add(Users.fromJson(
-  //           event.documents[i].data, event.documents[i].documentID));
-  //     }
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: new Scaffold(
         appBar: new AppBar(
-          title: new Text('Contacts'),
+          title: new Text('Pick Friends'),
         ),
-        body: showTodoList(),
+        body: showContactList(),
       ),
     );
   }
 
-  Widget showTodoList() {
-    return ListView.builder(
-        shrinkWrap: true,
-        itemCount: AppData.sharedInstance.users.length,
-        itemBuilder: (BuildContext context, int index) {
-          Users userData = AppData.sharedInstance.users[index];
-          String subject = AppData.sharedInstance.users[index].meta.name;
-          bool completed = AppData.sharedInstance.users[index].online;
-          return InkWell(
-            onTap: () {
-              _selectedUserList.add(userData);
-              FirebaseChannels().cretatePrivateChannels("", _selectedUserList);
-            },
-            child: ListTile(
-              title: Text(
-                subject,
-                style: TextStyle(fontSize: 20.0),
-              ),
-              trailing: IconButton(
-                  icon: (completed)
-                      ? Icon(
-                          Icons.done_outline,
-                          color: Colors.green,
-                          size: 20.0,
-                        )
-                      : Icon(Icons.done, color: Colors.grey, size: 20.0),
-                  onPressed: () {
-                    // updateTodo(_todoList[index]);
-                  }),
-            ),
-          );
+  Widget showContactList() {
+    return StreamBuilder(
+        stream: Firestore.instance
+            .collection(pCollectionUsers)
+            .where(AppData.instance.currentUserId)
+            .snapshots(includeMetadataChanges: true),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+                // separatorBuilder: (context, index) => Divider(),
+                physics: AlwaysScrollableScrollPhysics(),
+                itemCount: snapshot.data.documents.length,
+                itemBuilder: (BuildContext context, int index) {
+                  Users userData = Users.fromJson(
+                      snapshot.data.documents[index].data,
+                      snapshot.data.documents[index].documentID);
+                  if (userData.uid != AppData.instance.currentUserId) {
+                    return InkWell(
+                      onTap: () {
+                        var arrData = AppData.instance.userOppsiteChannelList
+                            .where((element) => element.id == userData.uid)
+                            .toList();
+                        if (arrData.length == 0) {
+                          _selectedUserList.add(userData);
+                          FirebaseChannels()
+                              .cretatePrivateChannels("", _selectedUserList)
+                              .then((value) {
+                            Navigator.pop(context, value);
+                          });
+                        } else {
+                          Navigator.pop(context, arrData.first.channelId);
+                        }
+                      },
+                      child: SizedBox(
+                        height: 72,
+                        child: Column(
+                          children: <Widget>[
+                            ListTile(
+                              leading: CircleAvatar(
+                                radius: 20,
+                                child: ClipOval(
+                                  child: CachedNetworkImage(
+                                    imageUrl: userData.meta.photoUrl,
+                                    width: 150,
+                                    height: 150,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                        Image.asset('assets/defaultavatar.jpg'),
+                                  ),
+                                ),
+                              ),
+                              trailing: Text(
+                                  userData.online == true ? "Online" : "Offline"),
+                              title: Text(
+                                userData.meta.name,
+                                style: TextStyle(fontSize: 20.0),
+                              ),
+                            ),
+                            Divider()
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      height: 0,
+                    );
+                  }
+                });
+          } else {
+            return Center(
+              child: LoadingIndicator(),
+            );
+          }
         });
-
-    // if (_userList.length > 0) {
-
-    // } else {
-    //   return Center(
-    //       child: Text(
-    //     "Welcome. Your list is empty",
-    //     textAlign: TextAlign.center,
-    //     style: TextStyle(fontSize: 30.0),
-    //   ));
-    // }
   }
 }
