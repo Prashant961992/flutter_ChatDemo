@@ -3,6 +3,7 @@ import 'package:chatdemo/AppData.dart';
 import 'package:chatdemo/pages/LoginSignupPage.dart';
 import 'package:chatdemo/pages/authentication/index.dart';
 import 'package:chatdemo/pages/splash_screen.dart';
+import 'package:device_simulator/device_simulator.dart';
 import 'utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chatdemo/services/FirebaseAuthorization.dart';
@@ -12,14 +13,16 @@ import 'LoadingIndicator.dart';
 import 'SimpleBlocObserver.dart';
 import 'pages/tabbar.dart';
 
+const bool debugEnableDeviceSimulator = true;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   Bloc.observer = SimpleBlocObserver();
   //init push notification manager
-  PushNotificationsManager pushNotificationsManager =
-      new PushNotificationsManager();
-  pushNotificationsManager.init();
+  // PushNotificationsManager pushNotificationsManager =
+  //     new PushNotificationsManager();
+  // pushNotificationsManager.init();
 
   final authRepository = AuthenticationRepository();
   runApp(BlocProvider<AuthenticationBloc>(

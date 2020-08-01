@@ -2,11 +2,11 @@ import '../utils/colors.dart';
 import 'package:flutter/material.dart';
 
 TextStyle green16TextStyle() {
-  return TextStyle(color: sky, fontSize: 16);
+  return TextStyle(color: theme, fontSize: 16);
 }
 
 TextStyle green20BoldTextStyle() {
-  return TextStyle(color: sky, fontSize: 20, fontWeight: FontWeight.bold);
+  return TextStyle(color: theme, fontSize: 20, fontWeight: FontWeight.bold);
 }
 
 TextStyle black16BoldTextStyle() {

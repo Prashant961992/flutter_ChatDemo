@@ -6,8 +6,7 @@ import '../pages/ContactsPage.dart';
 import '../index.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key})
-      : super(key: key);
+  HomePage({Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _HomePageState();
@@ -25,7 +24,6 @@ class _HomePageState extends State<HomePage> {
           onPressed: () {
             _pushToContact(context);
           },
-          tooltip: 'Increment',
           child: Icon(Icons.add),
         ));
   }
@@ -37,40 +35,51 @@ class _HomePageState extends State<HomePage> {
           if (snapshot.hasData) {
             return ListView.builder(
                 physics: AlwaysScrollableScrollPhysics(),
-                // shrinkWrap: true,
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext context, int index) {
                   Channels channelData = snapshot.data[index];
                   return InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      var data = await AppData.instance.displayname(channelData);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => ChatPage(
-                                  title: AppData.instance
-                                      .getname(channelData)
-                                      .toString(),
+                                  title: data,
                                   channelId: channelData.id,
                                 )),
                       );
                     },
                     child: ListTile(
-                      subtitle: Text('Last message'),
-                      title: Text(
-                        AppData.instance.getname(channelData).toString(),
-                        style: TextStyle(fontSize: 20.0, color: Colors.black),
+                      title: FutureBuilder(
+                        future: AppData.instance.displayname(channelData),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Text(
+                              snapshot.data,
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.black),
+                            );
+                          } else {
+                            return Container();
+                          }
+                        },
                       ),
-                      leading: ClipOval(
-                          child: CachedNetworkImage(
-                        imageUrl: AppData.instance.getImage(channelData),
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) =>
-                            CircularProgressIndicator(),
-                        errorWidget: (context, url, error) =>
-                            Image.asset('assets/defaultavatar.jpg'),
-                      )),
+                      // subtitle: channelData.lastmessage.lastMessahemeta?.text == null ? Text("Last") : Text(channelData.lastmessage.lastMessahemeta?.text == null ? "" : channelData.lastmessage.lastMessahemeta?.text),
+                      leading: CircleAvatar(
+                          radius: 25,
+                          child: ClipOval(
+                            child: CachedNetworkImage(
+                              imageUrl: AppData.instance.getImage(channelData),
+                              width: 150,
+                              height: 150,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  Image.asset('assets/defaultavatar.jpg'),
+                            ),
+                          )),
                     ),
                   );
                 });

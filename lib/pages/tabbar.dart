@@ -46,7 +46,7 @@ class _MyTabbedPageState extends State<MyTabbedPage>
           ),
         ],
         currentIndex: currentIndex,
-        selectedItemColor: sky,
+        selectedItemColor: theme,
         onTap: (value) {
            setState(() {
              currentIndex = value;

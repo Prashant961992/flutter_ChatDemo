@@ -80,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SizedBox(height: verticalspace),
             CustomRaisedButton(
               text: "Update",
-              buttonColor: sky,
+              buttonColor: theme,
               textColor: white,
               borderRadius: 8.0,
               fontSize: 20.0,

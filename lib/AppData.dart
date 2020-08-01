@@ -47,7 +47,7 @@ class AppData implements Blocs {
     usersList.close();
     channelStream.close();
   }
-
+  
   void startListner() {
 
     firebasestreamSubuser = Firestore.instance.collection(pCollectionUsers)
@@ -117,6 +117,30 @@ class AppData implements Blocs {
        channelStream.sink.add(usersChannelList);
     } else {
       print("Controller is closed");
+    }
+  }
+  
+  Future<String> displayname(Channels cData) async {
+    if (cData.meta.type == 1) {
+      if (AppData.instance.users.length > 0) {
+        var udata = cData.users
+            .where((element) => element != AppData.instance.currentUserId)
+            .toList();
+        if (udata.length > 0) {
+          return Firestore.instance.collection(pCollectionUsers)
+          .document(udata.first).get().then((value) {
+            var uses = Users.fromJson(
+                value.data, value.documentID);
+            return uses.meta.name;
+          });
+        } else {
+          return "Thread".toString();
+        }
+      } else {
+        return "Dummy".toString();
+      }
+    } else {
+      return cData.meta.name.toString();
     }
   }
 
