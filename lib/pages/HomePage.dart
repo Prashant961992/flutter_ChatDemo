@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chatdemo/services/FirebseConstants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/Channels.dart';
 import '../pages/ChatPage.dart';
@@ -13,6 +15,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    Firestore.instance
+        .collectionGroup(pCollectionChannels)
+        .where(FieldPath.documentId, isEqualTo: "8WCMxc3cbC0BvzUSL7AK")
+        .getDocuments()
+        .then((value) {
+      print(value);
+    }).catchError((error) {
+        print(error);
+    });
+//     Firestore.instance
+//         .collectionGroup(pCollectionChannels).getDocuments().then((value) {
+//             print(value);
+//         });
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -30,17 +51,24 @@ class _HomePageState extends State<HomePage> {
 
   Widget showChannelList() {
     return StreamBuilder(
-        stream: AppData.instance.channelStream.stream,
+        stream: Firestore.instance
+            .collection(pCollectionChannels)
+            .where(pchannelUsers, arrayContainsAny: [
+          AppData.instance.currentUserId
+        ]).snapshots(includeMetadataChanges: true),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return ListView.builder(
                 physics: AlwaysScrollableScrollPhysics(),
-                itemCount: snapshot.data.length,
+                itemCount: snapshot.data.documents.length,
                 itemBuilder: (BuildContext context, int index) {
-                  Channels channelData = snapshot.data[index];
+                  Channels channelData = Channels.fromJson(
+                      snapshot.data.documents[index].data,
+                      snapshot.data.documents[index].documentID);
                   return InkWell(
                     onTap: () async {
-                      var data = await AppData.instance.displayname(channelData);
+                      var data =
+                          await AppData.instance.displayname(channelData);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
